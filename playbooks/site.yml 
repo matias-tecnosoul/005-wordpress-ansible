@@ -1,0 +1,25 @@
+---
+- name: Install WordPress con MySQL
+  hosts: wordpress
+  become: yes
+  
+  vars:
+    # Variables básicas en el playbook (enfoque simple)
+    mysql_root_password: "rootpass123"
+    mysql_databases:
+      - name: wordpress
+    mysql_users:
+      - name: wpuser
+        host: localhost
+        password: "wppass123"
+        priv: "wordpress.*:ALL"
+        
+    # Variables para nuestro role
+    wp_db_name: wordpress
+    wp_db_user: wpuser
+    wp_db_password: "wppass123"
+    domain: "{{ ansible_default_ipv4.address }}"
+
+  roles:
+    - geerlingguy.mysql    # Role de Galaxy para MySQL
+    - webserver            # Nuestro role custom

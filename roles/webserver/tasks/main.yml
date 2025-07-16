@@ -1,0 +1,107 @@
+---
+- name: Install packages (Debian/Ubuntu)
+  apt:
+    name: "{{ packages_debian }}"
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install packages (RedHat/CentOS)
+  yum:
+    name: "{{ packages_redhat }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable Apache (Debian)
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+- name: Start and enable Apache (RedHat)
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Download WordPress
+  get_url:
+    url: "{{ wp_url }}"
+    dest: /tmp/wordpress.tar.gz
+
+- name: Extract WordPress
+  unarchive:
+    src: /tmp/wordpress.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy WordPress files
+  copy:
+    src: /tmp/wordpress/
+    dest: "{{ wp_install_dir }}"
+    remote_src: yes
+    owner: www-data
+    group: www-data
+  when: ansible_os_family == "Debian"
+
+- name: Copy WordPress files (RedHat)
+  copy:
+    src: /tmp/wordpress/
+    dest: "{{ wp_install_dir }}"
+    remote_src: yes
+    owner: apache
+    group: apache
+  when: ansible_os_family == "RedHat"
+
+- name: Create wp-config.php
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wp_install_dir }}/wp-config.php"
+    owner: www-data
+    group: www-data
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Create wp-config.php (RedHat)
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wp_install_dir }}/wp-config.php"
+    owner: apache
+    group: apache
+  when: ansible_os_family == "RedHat"
+  notify: restart apache
+
+- name: Configure Apache virtual host
+  template:
+    src: vhost.conf.j2
+    dest: /etc/apache2/sites-available/wordpress.conf
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Configure Apache virtual host (RedHat)
+  template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/wordpress.conf
+  when: ansible_os_family == "RedHat"
+  notify: restart apache
+
+- name: Enable WordPress site (Debian only)
+  command: a2ensite wordpress.conf
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Disable default site (Debian only)
+  command: a2dissite 000-default.conf
+  when: ansible_os_family == "Debian"
+  ignore_errors: yes
+  notify: restart apache
+
+- name: Clean up
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/wordpress.tar.gz
+    - /tmp/wordpress

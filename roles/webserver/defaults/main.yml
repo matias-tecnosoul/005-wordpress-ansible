@@ -1,0 +1,37 @@
+---
+# Configuración básica de WordPress
+wp_version: "latest"
+wp_install_dir: /var/www/html
+wp_url: "https://wordpress.org/latest.tar.gz"
+
+# Base de datos (valores por defecto)
+wp_db_name: wordpress
+wp_db_user: wpuser
+wp_db_password: changeme
+wp_db_host: localhost
+
+# Apache
+apache_port: 80
+domain: localhost
+
+# Packages por familia de OS (simple)
+packages_debian:
+  - apache2
+  - php
+  - php-mysql
+  - php-curl
+  - php-gd
+  - php-xml
+  - php-zip
+  - libapache2-mod-php
+  - wget
+
+packages_redhat:
+  - httpd
+  - php
+  - php-mysqlnd
+  - php-curl
+  - php-gd
+  - php-xml
+  - php-zip
+  - wget
