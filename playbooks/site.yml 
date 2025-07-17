@@ -13,11 +13,7 @@
   roles:
     - role: geerlingguy.mysql
       tags: ['mysql', 'database']
-    
-    - role: geerlingguy.apache
-      when: webserver_type == "apache"
-      tags: ['apache', 'webserver']
-    
+        
     - role: webserver
       tags: ['wordpress', 'webserver']
 

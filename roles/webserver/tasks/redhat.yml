@@ -2,27 +2,13 @@
 # Tareas específicas para RedHat/CentOS/Rocky
 
 - name: "Instalar repositorio EPEL"
-  yum:
+  dnf:
     name: epel-release
     state: present
-  when: ansible_distribution_major_version | int >= 8
-  tags: ['packages', 'repo']
-
-- name: "Instalar repositorio Remi para PHP"
-  yum:
-    name: "https://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
-    state: present
-    disable_gpg_check: yes
-  tags: ['packages', 'repo']
-
-- name: "Habilitar módulo PHP Remi"
-  command: "dnf module enable php:remi-{{ php_version | replace('.', '') }} -y"
-  when: ansible_distribution_major_version | int >= 8
-  changed_when: false
   tags: ['packages', 'repo']
 
 - name: "Instalar paquetes necesarios para WordPress"
-  yum:
+  dnf:
     name: "{{ redhat_packages }}"
     state: present
   tags: ['packages']
@@ -39,7 +25,7 @@
   ignore_errors: yes
   tags: ['firewall']
 
-- name: "Configurar SELinux para WordPress"
+- name: "Configurar SELinux para WordPress (básico)"
   seboolean:
     name: "{{ item }}"
     state: yes
@@ -57,5 +43,4 @@
     owner: "{{ wordpress_user }}"
     group: "{{ wordpress_group }}"
     mode: '0755'
-    setype: httpd_exec_t
   tags: ['wordpress', 'directories']
