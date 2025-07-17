@@ -4,7 +4,6 @@
   become: yes
   
   vars:
-    # Variables básicas en el playbook (enfoque simple)
     mysql_root_password: "rootpass123"
     mysql_databases:
       - name: wordpress
@@ -14,12 +13,22 @@
         password: "wppass123"
         priv: "wordpress.*:ALL"
         
-    # Variables para nuestro role
     wp_db_name: wordpress
     wp_db_user: wpuser
     wp_db_password: "wppass123"
     domain: "{{ ansible_default_ipv4.address }}"
 
+  pre_tasks:
+    - name: Install PyMySQL (required for mysql modules)
+      package:
+        name: "{{ 'python3-pymysql' if ansible_os_family == 'Debian' else 'python3-PyMySQL' }}"
+        state: present
+
   roles:
-    - geerlingguy.mysql    # Role de Galaxy para MySQL
-    - webserver            # Nuestro role custom
+    - geerlingguy.mysql
+    - webserver
+    
+  post_tasks:
+    - name: Display WordPress URL
+      debug:
+        msg: "WordPress disponible en: http://{{ ansible_default_ipv4.address }}"
