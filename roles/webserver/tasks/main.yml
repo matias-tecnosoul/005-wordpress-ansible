@@ -1,117 +1,32 @@
 ---
-- name: Install packages (Debian/Ubuntu)
-  apt:
-    name: "{{ packages_debian }}"
-    state: present
-    update_cache: yes
-  when: ansible_os_family == "Debian"
+# Tareas principales del role webserver
 
-- name: Install packages (RedHat/CentOS)
-  package:  # Cambiar yum por package (más genérico)
-    name: "{{ packages_redhat }}"
-    state: present
+- name: "Incluir variables específicas por OS"
+  include_vars: "{{ ansible_os_family | lower }}.yml"
+  tags: ['always']
+
+- name: "Instalar paquetes web server y PHP (Debian/Ubuntu)"
+  include_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+  tags: ['packages', 'php']
+
+- name: "Instalar paquetes web server y PHP (RedHat/CentOS)"
+  include_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
+  tags: ['packages', 'php']
 
-- name: Download WordPress
-  get_url:
-    url: "{{ wp_url }}"
-    dest: /tmp/wordpress.tar.gz
-    mode: '0644'
+- name: "Configurar PHP"
+  include_tasks: php.yml
+  tags: ['php', 'config']
 
-- name: Extract WordPress
-  unarchive:
-    src: /tmp/wordpress.tar.gz
-    dest: /tmp
-    remote_src: yes
-    creates: /tmp/wordpress  # Evitar extraer si ya existe
+- name: "Instalar y configurar WordPress"
+  include_tasks: wordpress.yml
+  tags: ['wordpress']
 
-- name: Create WordPress directory  # AGREGAR ESTA TAREA
-  file:
-    path: "{{ wp_install_dir }}"
-    state: directory
-    owner: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
-    group: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
-
-- name: Copy WordPress files (Debian)
-  copy:
-    src: /tmp/wordpress/
-    dest: "{{ wp_install_dir }}"
-    remote_src: yes
-    owner: www-data
-    group: www-data
-  when: ansible_os_family == "Debian"
-
-- name: Copy WordPress files (RedHat)
-  copy:
-    src: /tmp/wordpress/
-    dest: "{{ wp_install_dir }}"
-    remote_src: yes
-    owner: apache
-    group: apache
-  when: ansible_os_family == "RedHat"
-
-- name: Create wp-config.php
-  template:
-    src: wp-config.php.j2
-    dest: "{{ wp_install_dir }}/wp-config.php"
-    owner: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
-    group: "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
-  notify: restart apache
-
-- name: Configure Apache virtual host (Debian)
-  template:
-    src: vhost.conf.j2
-    dest: /etc/apache2/sites-available/wordpress.conf
-  when: ansible_os_family == "Debian"
-  notify: restart apache
-
-- name: Configure Apache virtual host (RedHat)
-  template:
-    src: vhost.conf.j2
-    dest: /etc/httpd/conf.d/wordpress.conf
-  when: ansible_os_family == "RedHat"
-  notify: restart apache
-
-- name: Enable Apache rewrite module (Debian)
-  apache2_module:
-    name: rewrite
-    state: present
-  when: ansible_os_family == "Debian"
-  notify: restart apache
-
-- name: Enable WordPress site (Debian only)
-  command: a2ensite wordpress.conf
-  args:
-    creates: /etc/apache2/sites-enabled/wordpress.conf  # Idempotencia
-  when: ansible_os_family == "Debian"
-  notify: restart apache
-
-- name: Disable default site (Debian only)
-  command: a2dissite 000-default.conf
-  args:
-    removes: /etc/apache2/sites-enabled/000-default.conf  # Idempotencia
-  when: ansible_os_family == "Debian"
-  ignore_errors: yes
-  notify: restart apache
-
-- name: Start and enable Apache (Debian)
+- name: "Asegurar que servicios estén iniciados"
   service:
-    name: apache2
+    name: "{{ item }}"
     state: started
     enabled: yes
-  when: ansible_os_family == "Debian"
-
-- name: Start and enable Apache (RedHat)
-  service:
-    name: httpd
-    state: started
-    enabled: yes
-  when: ansible_os_family == "RedHat"
-
-- name: Clean up
-  file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /tmp/wordpress.tar.gz
-    - /tmp/wordpress
+  loop: "{{ webserver_services }}"
+  tags: ['services']

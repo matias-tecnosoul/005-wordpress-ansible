@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: "Tu Nombre"
+  description: "Role para instalar y configurar WordPress"
+  company: "Mi Empresa"
+  license: "MIT"
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: EL
+      versions:
+        - 8
+        - 9
+
+  galaxy_tags:
+    - wordpress
+    - web
+    - php
+
+dependencies: []

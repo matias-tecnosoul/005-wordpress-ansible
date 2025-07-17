@@ -1,0 +1,44 @@
+---
+# Base de datos MySQL
+mysql_root_password: "root_password_super_secure"
+mysql_databases:
+  - name: "wordpress_db"
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+
+mysql_users:
+  - name: "wordpress_user"
+    host: "localhost"
+    password: "wp_password_secure"
+    priv: "wordpress_db.*:ALL"
+
+# WordPress configuración
+wordpress_db_host: "localhost"
+wordpress_db_name: "wordpress_db"
+wordpress_db_user: "wordpress_user"
+wordpress_db_password: "wp_password_secure"
+wordpress_table_prefix: "wp_"
+
+# WordPress seguridad (se pueden generar en https://api.wordpress.org/secret-key/1.1/salt/)
+wordpress_auth_key: "tu-auth-key-aqui"
+wordpress_secure_auth_key: "tu-secure-auth-key-aqui"
+wordpress_logged_in_key: "tu-logged-in-key-aqui"
+wordpress_nonce_key: "tu-nonce-key-aqui"
+wordpress_auth_salt: "tu-auth-salt-aqui"
+wordpress_secure_auth_salt: "tu-secure-auth-salt-aqui"
+wordpress_logged_in_salt: "tu-logged-in-salt-aqui"
+wordpress_nonce_salt: "tu-nonce-salt-aqui"
+
+# WordPress versión y URL
+wordpress_version: "latest"
+wordpress_download_url: "https://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz"
+
+# Apache configuración
+apache_vhosts:
+  - servername: "{{ wordpress_domain }}"
+    documentroot: "{{ wordpress_install_dir }}"
+    extra_parameters: |
+      <Directory "{{ wordpress_install_dir }}">
+          AllowOverride All
+          Require all granted
+      </Directory>

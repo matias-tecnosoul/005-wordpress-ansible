@@ -1,12 +1,19 @@
 ---
-- name: restart apache
+# Handlers del role webserver
+
+- name: restart apache2
   service:
     name: apache2
     state: restarted
   when: ansible_os_family == "Debian"
 
-- name: restart apache
+- name: restart httpd
   service:
     name: httpd
     state: restarted
   when: ansible_os_family == "RedHat"
+
+- name: restart php-fpm
+  service:
+    name: "php{{ php_version }}-fpm"
+    state: restarted

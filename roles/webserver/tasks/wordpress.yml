@@ -1,0 +1,97 @@
+---
+# Instalación y configuración de WordPress
+
+- name: "Verificar si WordPress ya está instalado"
+  stat:
+    path: "{{ wordpress_install_dir }}/wp-config.php"
+  register: wordpress_installed
+  tags: ['wordpress']
+
+- name: "Descargar WordPress"
+  get_url:
+    url: "{{ wordpress_download_url }}"
+    dest: "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
+    mode: '0644'
+  when: not wordpress_installed.stat.exists
+  tags: ['wordpress', 'download']
+
+- name: "Extraer WordPress"
+  unarchive:
+    src: "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
+    dest: "{{ wordpress_temp_dir }}"
+    remote_src: yes
+    creates: "{{ wordpress_temp_dir }}/wordpress"
+  when: not wordpress_installed.stat.exists
+  tags: ['wordpress', 'extract']
+
+- name: "Copiar archivos de WordPress"
+  synchronize:
+    src: "{{ wordpress_temp_dir }}/wordpress/"
+    dest: "{{ wordpress_install_dir }}/"
+    delete: yes
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"
+  when: not wordpress_installed.stat.exists
+  tags: ['wordpress', 'copy']
+
+- name: "Establecer permisos de WordPress"
+  file:
+    path: "{{ wordpress_install_dir }}"
+    owner: "{{ wordpress_user }}"
+    group: "{{ wordpress_group }}"
+    mode: '0755'
+    recurse: yes
+  tags: ['wordpress', 'permissions']
+
+- name: "Establecer permisos especiales para wp-content"
+  file:
+    path: "{{ wordpress_install_dir }}/wp-content"
+    mode: '0775'
+    recurse: yes
+  tags: ['wordpress', 'permissions']
+
+- name: "Crear wp-config.php desde template"
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wordpress_install_dir }}/wp-config.php"
+    owner: "{{ wordpress_user }}"
+    group: "{{ wordpress_group }}"
+    mode: '0644'
+    backup: yes
+  tags: ['wordpress', 'config']
+
+- name: "Crear virtualhost de Apache"
+  template:
+    src: apache-wordpress.conf.j2
+    dest: "/etc/apache2/sites-available/wordpress.conf"
+    backup: yes
+  when: 
+    - webserver_type == "apache"
+    - ansible_os_family == "Debian"
+  notify: restart apache2
+  tags: ['apache', 'vhost']
+
+- name: "Habilitar sitio de WordPress"
+  command: a2ensite wordpress.conf
+  when: 
+    - webserver_type == "apache"
+    - ansible_os_family == "Debian"
+  notify: restart apache2
+  tags: ['apache', 'vhost']
+
+- name: "Deshabilitar sitio por defecto"
+  command: a2dissite 000-default.conf
+  when: 
+    - webserver_type == "apache"
+    - ansible_os_family == "Debian"
+  notify: restart apache2
+  tags: ['apache', 'vhost']
+
+- name: "Limpiar archivos temporales"
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
+    - "{{ wordpress_temp_dir }}/wordpress"
+  tags: ['wordpress', 'cleanup']

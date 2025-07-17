@@ -1,37 +1,66 @@
 ---
-# Configuración básica de WordPress
-wp_version: "latest"
-wp_install_dir: /var/www/html
-wp_url: "https://wordpress.org/latest.tar.gz"
+# Variables por defecto del role webserver
 
-# Base de datos (valores por defecto)
-wp_db_name: wordpress
-wp_db_user: wpuser
-wp_db_password: changeme
-wp_db_host: localhost
+# Configuración general
+wordpress_install_dir: "/var/www/html/wordpress"
+wordpress_user: "www-data"
+wordpress_group: "www-data"
+wordpress_domain: "localhost"
 
-# Apache
-apache_port: 80
-domain: localhost
+# PHP configuración
+php_version: "7.4"
+php_memory_limit: "256M"
+php_max_execution_time: "300"
+php_upload_max_filesize: "64M"
+php_post_max_size: "64M"
 
-# Packages por familia de OS (simple)
-packages_debian:
+# Paquetes base por distribución
+debian_packages:
   - apache2
-  - php
-  - php-mysql
-  - php-curl
-  - php-gd
-  - php-xml
-  - php-zip
-  - libapache2-mod-php
-  - wget
+  - "php{{ php_version }}"
+  - "php{{ php_version }}-mysql"
+  - "php{{ php_version }}-curl"
+  - "php{{ php_version }}-gd"
+  - "php{{ php_version }}-mbstring"
+  - "php{{ php_version }}-xml"
+  - "php{{ php_version }}-xmlrpc"
+  - "php{{ php_version }}-soap"
+  - "php{{ php_version }}-intl"
+  - "php{{ php_version }}-zip"
+  - unzip
+  - curl
 
-packages_redhat:
+redhat_packages:
   - httpd
-  - php
-  - php-mysqlnd
-  - php-curl
-  - php-gd
-  - php-xml
-  - php-zip
-  - wget
+  - "php{{ php_version }}"
+  - "php{{ php_version }}-mysqlnd"
+  - "php{{ php_version }}-curl"
+  - "php{{ php_version }}-gd"
+  - "php{{ php_version }}-mbstring"
+  - "php{{ php_version }}-xml"
+  - "php{{ php_version }}-soap"
+  - "php{{ php_version }}-intl"
+  - "php{{ php_version }}-zip"
+  - unzip
+  - curl
+
+# Servicios por distribución
+debian_services:
+  - apache2
+  - "php{{ php_version }}-fpm"
+
+redhat_services:
+  - httpd
+  - "php{{ php_version }}-fpm"
+
+# WordPress configuración
+wordpress_version: "latest"
+wordpress_download_url: "https://wordpress.org/wordpress-{{ wordpress_version }}.tar.gz"
+wordpress_temp_dir: "/tmp"
+
+# Base de datos
+wordpress_db_host: "localhost"
+wordpress_db_name: "wordpress_db"
+wordpress_db_user: "wordpress_user"
+wordpress_db_password: "password"
+wordpress_table_prefix: "wp_"

@@ -1,0 +1,28 @@
+---
+# Variables globales
+wordpress_domain: "wordpress.local"
+wordpress_admin_email: "admin@wordpress.local"
+
+# Usuario del sistema para WordPress
+wordpress_user: "www-data"
+wordpress_group: "www-data"
+
+# Directorio de instalación
+wordpress_install_dir: "/var/www/html/wordpress"
+wordpress_document_root: "/var/www/html"
+
+# Configuración de PHP
+php_version: "8.1"
+php_packages_extra:
+  - "php{{ php_version }}-mysql"
+  - "php{{ php_version }}-curl"
+  - "php{{ php_version }}-gd"
+  - "php{{ php_version }}-mbstring"
+  - "php{{ php_version }}-xml"
+  - "php{{ php_version }}-xmlrpc"
+  - "php{{ php_version }}-soap"
+  - "php{{ php_version }}-intl"
+  - "php{{ php_version }}-zip"
+
+# Servidor web preferido (apache|nginx)
+webserver_type: "apache"
