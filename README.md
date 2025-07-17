@@ -1,4 +1,4 @@
-# 005-wordpress-ansible-vagrant
+# 005-ansible
 Práctica Ansible
 Objetivos:
 - Desarrollar un playbook de ansible que instale un wordpress y una base de datos para su funcionamiento. 
