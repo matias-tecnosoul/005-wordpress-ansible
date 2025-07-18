@@ -31,7 +31,6 @@
     - ssl
     - headers
   notify: restart apache2
-  when: webserver_type == "apache"
   tags: ['apache', 'modules']
 
 - name: "Crear directorio de WordPress"

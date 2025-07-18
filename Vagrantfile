@@ -6,8 +6,8 @@ Vagrant.configure("2") do |config|
     ubuntu.vm.hostname = "wordpress-ubuntu"
     ubuntu.vm.network "private_network", ip: "192.168.56.10"
     ubuntu.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
-      vb.cpus = 1
+      vb.memory = "2048"
+      vb.cpus = 4
       vb.name = "wordpress-ubuntu"
     end
   end
@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     debian.vm.hostname = "wordpress-debian"
     debian.vm.network "private_network", ip: "192.168.56.11"
     debian.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.cpus = 1
       vb.name = "wordpress-debian"
     end
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     rocky.vm.hostname = "wordpress-rocky"
     rocky.vm.network "private_network", ip: "192.168.56.12"
     rocky.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.cpus = 1
       vb.name = "wordpress-rocky"
     end

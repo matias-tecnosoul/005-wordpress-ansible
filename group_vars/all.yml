@@ -1,20 +1,25 @@
 ---
-ansible_python_interpreter: auto_silent
-
-# Variables globales
+# Variables que necesitan TODOS los roles y hosts
 wordpress_domain: "wordpress.local"
 wordpress_admin_email: "admin@wordpress.local"
-
-# Directorio de instalación
-wordpress_install_dir: "/var/www/html/wordpress"
-wordpress_document_root: "/var/www/html"
-
-# Configuración de PHP 
 php_version: "8.1"
-
-# Servidor web elegido
 webserver_type: "apache"
 
-# WordPress configuración de debug (simplificado para capacitación)
-wordpress_debug: false
-wordpress_debug_log: false
+# === MYSQL - Necesarias para geerlingguy.mysql ===
+mysql_root_password: "root_password_super_secure"
+mysql_databases:
+  - name: "wordpress_db"
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+
+mysql_users:
+  - name: "wordpress_user"
+    host: "localhost"
+    password: "wp_password_secure"
+    priv: "wordpress_db.*:ALL"
+
+# WordPress DB connection (para el role webserver)
+wordpress_db_host: "localhost"
+wordpress_db_name: "wordpress_db"
+wordpress_db_user: "wordpress_user"
+wordpress_db_password: "wp_password_secure"
