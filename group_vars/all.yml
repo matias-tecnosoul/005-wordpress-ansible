@@ -1,4 +1,6 @@
 ---
+ansible_python_interpreter: auto_silent
+
 # Variables globales
 wordpress_domain: "wordpress.local"
 wordpress_admin_email: "admin@wordpress.local"
@@ -7,10 +9,10 @@ wordpress_admin_email: "admin@wordpress.local"
 wordpress_install_dir: "/var/www/html/wordpress"
 wordpress_document_root: "/var/www/html"
 
-# Configuración de PHP (actualizado a 8.1)
+# Configuración de PHP 
 php_version: "8.1"
 
-# Servidor web preferido
+# Servidor web elegido
 webserver_type: "apache"
 
 # WordPress configuración de debug (simplificado para capacitación)

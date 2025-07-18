@@ -1,4 +1,4 @@
-# 005-ansible
+# 005-Ansible para Wordpress y DB
 Práctica Ansible
 Objetivos:
 - Desarrollar un playbook de ansible que instale un wordpress y una base de datos para su funcionamiento. 
