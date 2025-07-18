@@ -5,7 +5,7 @@
 │   ├── all.yml
 │   └── wordpress.yml
 ├── inventory
-│   └── hosts.ini
+│   └── hosts.yml
 ├── playbooks
 │   └── site.yml 
 ├── README.md
@@ -24,10 +24,13 @@
 │       │   ├── php.yml
 │       │   ├── redhat.yml
 │       │   └── wordpress.yml
-│       └── templates
-│           ├── apache-wordpress.conf.j2
-│           ├── vhost.conf.j2
-│           └── wp-config.php.j2
+│       ├── templates
+│       │   ├── apache-wordpress.conf.j2
+│       │   ├── vhost.conf.j2
+│       │   └── wp-config.php.j2
+│       └── vars
+│           ├── debian.yml
+│           └── redhat.yml
 └── Vagrantfile
 
-11 directories, 20 files
+12 directories, 22 files
