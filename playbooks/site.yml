@@ -4,12 +4,18 @@
   hosts: wordpress
   become: yes
   gather_facts: yes
+
+  vars_files:
+    - ../group_vars/all.yml  # relativo al playbook
   
   pre_tasks:
     - name: "Actualizar cache de paquetes"
       package:
         update_cache: yes
       changed_when: false
+    - name: "Mostrar variables mysql_databases"
+      debug:
+        var: mysql_databases
 
   roles:
     - role: geerlingguy.mysql
