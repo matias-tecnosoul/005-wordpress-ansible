@@ -88,6 +88,23 @@ ansible-playbook playbooks/site.yml --limit ubuntu
 > Revisar `inventory/hosts.yml` para q apunte a una VM o host válido para testing.
 
 ---
+Revisar vabiables y databases en hosts
+
+ansible ubuntu -i inventory/hosts.yml -m debug -a "var=mysql_users" --become
+# 1. Ver configuración real del MySQL
+ansible ubuntu -i inventory/hosts.yml -m shell -a "sudo cat /root/.my.cnf" --become
+
+# 2. Probar conexión como debe ser
+ansible ubuntu -i inventory/hosts.yml -m shell -a "sudo mysql -e 'SELECT user,host FROM mysql.user;'" --become
+
+# 3. Verificar si existe el usuario wordpress
+ansible ubuntu -i inventory/hosts.yml -m shell -a "sudo mysql -e \"SELECT user,host FROM mysql.user WHERE user='wordpress_user';\"" --become
+
+
+en host
+sudo mysql -e 'SELECT user,host FROM mysql.user';
+
+---
 
 ## 🧹 Recomendar limpieza del entorno de pruebas
 

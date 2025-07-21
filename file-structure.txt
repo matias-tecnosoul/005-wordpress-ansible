@@ -1,5 +1,6 @@
 .
 ├── ansible.cfg
+├── debug.log
 ├── file-structure.txt
 ├── group_vars
 │   ├── all.yml
@@ -7,7 +8,7 @@
 ├── inventory
 │   └── hosts.yml
 ├── playbooks
-│   └── site.yml 
+│   └── site.yml
 ├── README.md
 ├── requirements.yml
 ├── roles
@@ -33,4 +34,4 @@
 │           └── redhat.yml
 └── Vagrantfile
 
-12 directories, 22 files
+12 directories, 23 files
