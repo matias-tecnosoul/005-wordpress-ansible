@@ -12,22 +12,6 @@ Objetivos:
 
 ## 📁 Estructura del Proyecto
 
-```
-
-005-wordpress-ansible/
-├── ansible.cfg
-├── inventory/
-│   └── hosts.yml
-├── playbooks/
-│   ├── site.yml           # Playbook principal
-│   └── wordpress.yml      # Playbook específico para WordPress
-├── roles/
-│   └── webserver/         # Rol personalizado para servidor web
-├── requirements.yml       # Roles y colecciones a instalar
-└── group\_vars/
-└── all.yml            # Variables comunes (credenciales, etc.)
-
-````
 005-wordpress-ansible/
 ├── ansible.cfg
 ├── inventory/
