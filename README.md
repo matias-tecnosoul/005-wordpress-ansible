@@ -49,7 +49,6 @@ ansible-galaxy install -r requirements.yml -p roles/
 ansible-galaxy collection install -r requirements.yml
 ```
 
-> ✅ Estos comandos deben ejecutarse desde la raíz del proyecto.
 
 ---
 
@@ -73,26 +72,26 @@ wordpress_db_password: wp_pass
 
 ## 🧪 Ejecución de pruebas
 
-Podés ejecutar cada parte por separado usando etiquetas (`--tags`):
+ejecutar cada parte por separado usando etiquetas (`--tags`):
 
 ```bash
 ansible-playbook playbooks/site.yml --limit ubuntu --tags "mysql"
 ansible-playbook playbooks/site.yml --limit ubuntu --tags "webserver"
 ```
 
-O bien ejecutar todo junto:
+ejecutar todo junto:
 
 ```bash
 ansible-playbook playbooks/site.yml --limit ubuntu
 ```
 
-> Asegurate de que `inventory/hosts.yml` apunte a una VM o host válido para testing.
+> Revisar `inventory/hosts.yml` para q apunte a una VM o host válido para testing.
 
 ---
 
 ## 🧹 Recomendar limpieza del entorno de pruebas
 
-Para volver a correr desde cero, podés:
+Para volver a correr desde cero:
 
 * **Recrear la VM** si estás usando VirtualBox/Vagrant/libvirt
 * O manualmente: borrar Apache/MySQL y archivos de WordPress en el servidor de prueba
@@ -106,8 +105,7 @@ Para volver a correr desde cero, podés:
 ```
 roles/geerlingguy.mysql/
 ```
-
-Esto mantiene el repo limpio y liviano. El rol se vuelve a instalar fácilmente con:
+El rol se vuelve a instalar fácilmente con:
 
 ```bash
 ansible-galaxy install -r requirements.yml -p roles/
