@@ -1,5 +1,6 @@
 ---
 # Variables específicas para RedHat/CentOS/Rocky
+#roles/webserver/vars/redhat.yml
 
 webserver_services:
   - httpd

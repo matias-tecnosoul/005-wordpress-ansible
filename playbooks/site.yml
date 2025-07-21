@@ -1,4 +1,5 @@
 ---
+#playbooks/site.yml
 - name: "Instalar WordPress con MySQL"
   hosts: wordpress
   become: yes

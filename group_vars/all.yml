@@ -1,22 +1,39 @@
 ---
+#group_vars/all.yml
 # Variables que necesitan TODOS los roles y hosts
 wordpress_domain: "wordpress.local"
 wordpress_admin_email: "admin@wordpress.local"
 php_version: "8.1"
 webserver_type: "apache"
 
-# === MYSQL - Necesarias para geerlingguy.mysql ===
+# === MYSQL - CONFIGURACIÓN COMPLETA PARA geerlingguy.mysql ===
 mysql_root_password: "root_password_super_secure"
+mysql_root_password_update: true  # ← CRÍTICO: Forzar actualización del password root
+mysql_user_password_update: true  # ← CRÍTICO: Permitir actualización de passwords
+
+# Configuración de conexión
+mysql_enabled_on_startup: true
+mysql_bind_address: '127.0.0.1'  # Solo localhost por seguridad
+mysql_port: '3306'
+
+# Configuración adicional para evitar problemas
+overwrite_global_mycnf: true
+
+# Bases de datos a crear
 mysql_databases:
   - name: "wordpress_db"
     encoding: utf8mb4
     collation: utf8mb4_unicode_ci
+    state: present  # Asegurar que existe
 
+# Usuarios a crear
 mysql_users:
   - name: "wordpress_user"
-    host: "localhost"
+    host: "%"
     password: "wp_password_secure"
     priv: "wordpress_db.*:ALL"
+    state: present
+    update_password: always  # Siempre actualizar password
 
 # WordPress DB connection (para el role webserver)
 wordpress_db_host: "localhost"
