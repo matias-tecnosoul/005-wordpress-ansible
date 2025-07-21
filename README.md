@@ -28,7 +28,18 @@ Objetivos:
 └── all.yml            # Variables comunes (credenciales, etc.)
 
 ````
-
+005-wordpress-ansible/
+├── ansible.cfg
+├── inventory/
+│ └── hosts.yml
+├── playbooks/
+│ ├── site.yml # Playbook principal
+│ └── wordpress.yml # Playbook específico para WordPress
+├── roles/
+│ └── webserver/ # Rol personalizado para servidor web
+├── requirements.yml # Roles y colecciones a instalar
+└── group_vars/
+└── all.yml # Variables comunes (credenciales, etc.)
 ---
 
 ## 🚀 Cómo poner en marcha el proyecto
