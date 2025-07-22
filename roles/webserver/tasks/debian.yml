@@ -7,15 +7,6 @@
     cache_valid_time: 3600
   tags: ['packages']
 
-- name: "Instalar repositorio PHP (Ubuntu < 20.04)"
-  apt_repository:
-    repo: "ppa:ondrej/php"
-    state: present
-  when: 
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_version is version('20.04', '<')
-  tags: ['packages', 'repo']
-
 - name: "Instalar paquetes necesarios para WordPress"
   apt:
     name: "{{ debian_packages }}"

@@ -24,7 +24,7 @@
   when: not wordpress_installed.stat.exists
   tags: ['wordpress', 'extract']
 
-- name: "Copiar archivos de WordPress (método simplificado)"
+- name: "Copiar archivos de WordPress"
   copy:
     src: "{{ wordpress_temp_dir }}/wordpress/"
     dest: "{{ wordpress_install_dir }}/"
