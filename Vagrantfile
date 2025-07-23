@@ -36,12 +36,12 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  # Arch
-  config.vm.define "arch" do |rocky|
-    rocky.vm.box = "generic/arch"
-    rocky.vm.hostname = "wordpress-arch"
-    rocky.vm.network "private_network", ip: "192.168.56.13"
-    rocky.vm.provider "virtualbox" do |vb|
+  # Arch Linux
+  config.vm.define "arch" do |arch| 
+    arch.vm.box = "generic/arch"
+    arch.vm.hostname = "wordpress-arch"
+    arch.vm.network "private_network", ip: "192.168.56.13"
+    arch.vm.provider "virtualbox" do |vb|
       vb.memory = "2048"
       vb.cpus = 1
       vb.name = "wordpress-arch"
@@ -50,17 +50,15 @@ Vagrant.configure("2") do |config|
   
   # Configuración común para todas las VMs
   config.vm.provision "shell", inline: <<-SHELL
-    # Actualizar sistema
+    # Actualizar sistema e instalar Python (para Ansible)
     if command -v apt >/dev/null 2>&1; then
-      apt update
-      # Instalar Python si no está (necesario para Ansible)
-      apt install -y python3 python3-pip
+      apt update && apt install -y python3 python3-pip
     elif command -v yum >/dev/null 2>&1; then
-      yum update -y
-      yum install -y python3 python3-pip
+      yum update -y && yum install -y python3 python3-pip
     elif command -v dnf >/dev/null 2>&1; then
-      dnf update -y
-      dnf install -y python3 python3-pip
+      dnf update -y && dnf install -y python3 python3-pip
+    elif command -v pacman >/dev/null 2>&1; then
+      pacman -Syu --noconfirm && pacman -S --noconfirm python python-pip
     fi
     
     # Configurar SSH para Ansible
