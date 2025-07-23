@@ -10,16 +10,13 @@ driver:
 platforms:
   - name: instance-ubuntu
     image: geerlingguy/docker-ubuntu2204-ansible:latest
-    pre_build_image: true
-    privileged: true
     command: /lib/systemd/systemd
+    privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     published_ports:
-      - "80:80"
-    env:
-      container: docker
+      - "8100:80"
 
 provisioner:
   name: ansible
@@ -31,7 +28,6 @@ provisioner:
   inventory:
     host_vars:
       instance-ubuntu:
-        # Variables para MySQL (similares a tu group_vars/all.yml)
         mysql_root_password: "test_root_password"
         mysql_root_password_update: true
         mysql_user_password_update: true
@@ -53,7 +49,6 @@ provisioner:
             state: present
             update_password: always
             
-        # Variables para tu role webserver
         wordpress_domain: "test.local"
         wordpress_db_host: "localhost"
         wordpress_db_name: "test_wordpress_db"
