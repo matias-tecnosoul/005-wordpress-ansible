@@ -36,8 +36,8 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  # Arch Linux
-  config.vm.define "arch" do |arch| 
+   # Arch Linux
+  config.vm.define "arch" do |arch|
     arch.vm.box = "generic/arch"
     arch.vm.hostname = "wordpress-arch"
     arch.vm.network "private_network", ip: "192.168.56.13"
@@ -46,6 +46,14 @@ Vagrant.configure("2") do |config|
       vb.cpus = 1
       vb.name = "wordpress-arch"
     end
+
+    # Arch-specific provisioning (runs BEFORE the global shell provisioner)
+    arch.vm.provision "shell", inline: <<-SHELL
+      # Initialize keyring and bypass PGP key prompts
+      pacman -Sy --noconfirm archlinux-keyring
+      pacman-key --init
+      pacman-key --populate archlinux
+    SHELL
   end
   
   # Configuración común para todas las VMs
