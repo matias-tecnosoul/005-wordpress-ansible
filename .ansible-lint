@@ -1,0 +1,21 @@
+---
+profile: production
+
+exclude_paths:
+  - .cache/
+  - .github/
+  - molecule-env/
+  - .vagrant/
+  - roles/geerlingguy.mysql/
+
+skip_list:
+  - yaml[line-length]
+  - name[casing]
+  - risky-file-permissions
+
+warn_list:
+  - command-instead-of-shell
+  - deprecated-command-syntax
+
+use_default_rules: true
+verbosity: 1

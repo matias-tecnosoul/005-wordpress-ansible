@@ -1,0 +1,48 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+  
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+      
+    - name: Install Python packages
+      package:
+        name:
+          - python3
+          - python3-pip
+          - curl
+          - wget
+        state: present
+
+    - name: Install MySQL connector for Python
+      pip:
+        name: PyMySQL
+        state: present
+        
+  tasks:  
+    - name: Install and configure MySQL
+      include_role:
+        name: geerlingguy.mysql
+      vars:
+        mysql_packages:
+          - mysql-server
+          - mysql-client
+        mysql_daemon: mysql
+
+    - name: Wait for MySQL to be ready
+      wait_for:
+        port: 3306
+        host: localhost
+        timeout: 60
+        
+    - name: Verify MySQL is running
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes

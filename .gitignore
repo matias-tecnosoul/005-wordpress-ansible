@@ -5,3 +5,23 @@ TODO
 #ansible/roles/
 .direnv/
 roles/geerlingguy.mysql/
+
+# Entornos virtuales Python
+molecule-env/
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+
+# Molecule
+.cache/
+.molecule/
+
+# Testing temporales
+*.tmp
+*.log
