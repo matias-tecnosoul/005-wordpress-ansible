@@ -35,6 +35,18 @@ Vagrant.configure("2") do |config|
       vb.name = "wordpress-rocky"
     end
   end
+
+  # Arch
+  config.vm.define "arch" do |rocky|
+    rocky.vm.box = "generic/arch"
+    rocky.vm.hostname = "wordpress-arch"
+    rocky.vm.network "private_network", ip: "192.168.56.13"
+    rocky.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 1
+      vb.name = "wordpress-arch"
+    end
+  end
   
   # Configuración común para todas las VMs
   config.vm.provision "shell", inline: <<-SHELL
