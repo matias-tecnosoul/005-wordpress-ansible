@@ -14,7 +14,7 @@ apache_conf_dir: "/etc/httpd/conf"
 apache_vhost_dir: "/etc/httpd/conf.d"
 php_ini_path: "/etc/php.ini"
 
-# Paquetes para Rocky Linux 9 con PHP 8.1
+# Paquetes para Rocky Linux 9 con PHP 
 redhat_packages:
   - httpd
   - php

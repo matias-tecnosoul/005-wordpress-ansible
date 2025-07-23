@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
   
   # Rocky Linux 9
   config.vm.define "rocky" do |rocky|
-    rocky.vm.box = "rockylinux/9"
+    rocky.vm.box = "generic/rocky9"
     rocky.vm.hostname = "wordpress-rocky"
     rocky.vm.network "private_network", ip: "192.168.56.12"
     rocky.vm.provider "virtualbox" do |vb|
