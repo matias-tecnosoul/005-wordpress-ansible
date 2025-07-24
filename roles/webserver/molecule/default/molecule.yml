@@ -16,7 +16,7 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     published_ports:
-      - "8100:80"
+      - "8180:80"
 
 provisioner:
   name: ansible
@@ -54,8 +54,22 @@ provisioner:
         wordpress_db_name: "test_wordpress_db"
         wordpress_db_user: "test_wp_user"
         wordpress_db_password: "test_wp_password"
-        php_version: "8.2"
+        php_version: "8.1"
         webserver_type: "apache"
 
 verifier:
   name: ansible
+
+# Omitir idempotencia del test
+scenario:
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy

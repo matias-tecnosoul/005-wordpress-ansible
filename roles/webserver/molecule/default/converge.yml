@@ -9,7 +9,7 @@
       include_role:
         name: webserver
       vars:
-        php_version: "8.1"  # ← Cambiar a versión disponible
+        # NO especificar php_version - que se detecte automáticamente
         wordpress_domain: "test.local"
         wordpress_db_host: "localhost"
         wordpress_db_name: "test_wordpress_db"

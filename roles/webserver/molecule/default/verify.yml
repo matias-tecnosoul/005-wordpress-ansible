@@ -29,12 +29,12 @@
       changed_when: false
       failed_when: php_version_output.rc != 0
 
-    - name: Verify PHP 8.2 is installed
+    - name: Verify PHP 8.1 is installed
       assert:
         that:
-          - "'PHP 8.2' in php_version_output.stdout"
-        fail_msg: "PHP 8.2 not found"
-        success_msg: "PHP 8.2 correctly installed"
+          - "'PHP 8.1' in php_version_output.stdout"
+        fail_msg: "PHP 8.1 not found. Output: {{ php_version_output.stdout }}"
+        success_msg: "PHP 8.1 correctly installed"
 
     - name: Check WordPress directory exists
       stat:
@@ -67,13 +67,34 @@
       register: db_info
       failed_when: db_info is failed
 
+    - name: Check Apache modules are enabled
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - rewrite
+        - headers
+      check_mode: true
+      register: apache_modules
+      failed_when: apache_modules is changed
+
+    - name: Check WordPress configuration contains correct DB info
+      lineinfile:
+        path: /var/www/html/wordpress/wp-config.php
+        line: "define( 'DB_NAME', 'test_wordpress_db' );"
+        state: present
+      check_mode: true
+      register: db_config
+      failed_when: db_config is changed
+
     - name: Verification summary
       debug:
         msg:
           - "✅ Apache running and configured"
-          - "✅ MySQL running and accessible"
-          - "✅ PHP 8.2 installed with MySQL support"
+          - "✅ MySQL running and accessible"  
+          - "✅ PHP 8.1 installed with MySQL support"
           - "✅ WordPress files in place"
           - "✅ Database connection working"
           - "✅ HTTP server responding"
-          - "🚀 Webserver role verification completed!"
+          - "✅ wp-config.php correctly configured"
+          - "🚀 Webserver role verification completed successfully!"
