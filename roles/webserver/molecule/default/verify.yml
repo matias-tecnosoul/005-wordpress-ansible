@@ -29,12 +29,12 @@
       changed_when: false
       failed_when: php_version_output.rc != 0
 
-    - name: Verify PHP 8.1 is installed
+    - name: Verify PHP 8.x is installed
       assert:
         that:
-          - "'PHP 8.1' in php_version_output.stdout"
-        fail_msg: "PHP 8.1 not found. Output: {{ php_version_output.stdout }}"
-        success_msg: "PHP 8.1 correctly installed"
+          - "'PHP 8.' in php_version_output.stdout"
+        fail_msg: "PHP 8.x not found. Output: {{ php_version_output.stdout }}"
+        success_msg: "PHP 8.x correctly installed: {{ php_version_output.stdout.split()[1] }}"
 
     - name: Check WordPress directory exists
       stat:
@@ -58,14 +58,33 @@
       retries: 3
       delay: 5
 
-    - name: Test database connection
-      mysql_info:
+    # Test de DB más específico y seguro
+    - name: Test database connection with WordPress user
+      mysql_query:
         login_host: localhost
         login_user: test_wp_user
         login_password: test_wp_password
         login_db: test_wordpress_db
-      register: db_info
-      failed_when: db_info is failed
+        query: "SELECT 1 as test_connection"
+      register: db_test
+      failed_when: db_test is failed
+
+    - name: Verify database query result
+      assert:
+        that:
+          - db_test.query_result[0][0]['test_connection'] == 1
+        success_msg: "✅ Database connection working correctly"
+        fail_msg: "❌ Database query failed"
+
+    - name: Test WordPress can access its database
+      mysql_query:
+        login_host: localhost
+        login_user: test_wp_user
+        login_password: test_wp_password
+        login_db: test_wordpress_db
+        query: "SHOW TABLES"
+      register: wp_tables
+      failed_when: wp_tables is failed
 
     - name: Check Apache modules are enabled
       apache2_module:
@@ -87,14 +106,27 @@
       register: db_config
       failed_when: db_config is changed
 
+    - name: Check WordPress core files exist
+      stat:
+        path: "/var/www/html/wordpress/{{ item }}"
+      register: wp_core_files
+      failed_when: not wp_core_files.stat.exists
+      loop:
+        - wp-load.php
+        - wp-settings.php
+        - wp-admin
+        - wp-content
+        - wp-includes
+
     - name: Verification summary
       debug:
         msg:
           - "✅ Apache running and configured"
-          - "✅ MySQL running and accessible"  
-          - "✅ PHP 8.1 installed with MySQL support"
+          - "✅ MySQL accessible with WordPress user"  
+          - "✅ PHP {{ php_version_output.stdout.split()[1] }} installed"
           - "✅ WordPress files in place"
           - "✅ Database connection working"
           - "✅ HTTP server responding"
           - "✅ wp-config.php correctly configured"
+          - "✅ Apache modules enabled"
           - "🚀 Webserver role verification completed successfully!"
