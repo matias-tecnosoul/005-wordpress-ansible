@@ -1,0 +1,114 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+  
+  tasks:
+    - name: Check if Apache is running
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+      check_mode: true
+      register: apache_status
+      failed_when: apache_status is changed
+
+    - name: Check if MySQL is running
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
+      check_mode: true
+      register: mysql_status
+      failed_when: mysql_status is changed
+
+    - name: Check PHP version
+      command: php --version
+      register: php_version_output
+      changed_when: false
+      failed_when: php_version_output.rc != 0
+
+    - name: Verify PHP 8.x is installed
+      assert:
+        that:
+          - "'PHP 8.' in php_version_output.stdout"
+        fail_msg: "PHP 8.x not found. Output: {{ php_version_output.stdout }}"
+        success_msg: "PHP 8.x correctly installed: {{ php_version_output.stdout.split()[1] }}"
+
+    - name: Check WordPress directory exists
+      stat:
+        path: /var/www/html/wordpress
+      register: wp_dir
+      failed_when: not wp_dir.stat.exists
+
+    - name: Check wp-config.php exists
+      stat:
+        path: /var/www/html/wordpress/wp-config.php
+      register: wp_config
+      failed_when: not wp_config.stat.exists
+
+    # ✅ Test HTTP actualizado - acepta redirects de WordPress
+    - name: Test HTTP response (WordPress may redirect)
+      uri:
+        url: "http://localhost"
+        method: GET
+        status_code: [200, 301, 302, 404]  # ← Agregar 301 para redirects
+        follow_redirects: none  # No seguir redirects automáticamente
+      register: http_response
+      failed_when: http_response.status not in [200, 301, 302, 404]
+
+    - name: Show HTTP response details
+      debug:
+        msg:
+          - "HTTP Status: {{ http_response.status }}"
+          - "Response: {{ 'Redirect' if http_response.status == 301 else 'Direct response' }}"
+          - "Location header: {{ http_response.location | default('N/A') }}"
+
+    - name: Test database connection with WordPress user
+      mysql_query:
+        login_host: localhost
+        login_user: test_wp_user
+        login_password: test_wp_password
+        login_db: test_wordpress_db
+        query: "SELECT 1 as test_connection"
+      register: db_test
+      failed_when: db_test is failed
+
+    - name: Verify database query result
+      assert:
+        that:
+          - db_test.query_result[0][0]['test_connection'] == 1
+        success_msg: "✅ Database connection working correctly"
+
+    - name: Check Apache modules are enabled
+      apache2_module:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - rewrite
+        - headers
+      check_mode: true
+      register: apache_modules
+      failed_when: apache_modules is changed
+
+    - name: Check WordPress configuration contains correct DB info
+      lineinfile:
+        path: /var/www/html/wordpress/wp-config.php
+        line: "define( 'DB_NAME', 'test_wordpress_db' );"
+        state: present
+      check_mode: true
+      register: db_config
+      failed_when: db_config is changed
+
+    - name: Verification summary
+      debug:
+        msg:
+          - "✅ Apache running and configured"
+          - "✅ MySQL accessible with WordPress user"  
+          - "✅ PHP {{ php_version_output.stdout.split()[1] }} installed"
+          - "✅ WordPress files in place and responding"
+          - "✅ Database connection working"
+          - "✅ HTTP server responding ({{ http_response.status }})"
+          - "✅ Apache modules enabled"
+          - "🚀 WordPress webserver role verification completed successfully!"

@@ -1,6 +1,7 @@
 ---
 # roles/webserver/defaults/main.yml
 # Variables por defecto del role webserver
+# Variables por defecto del role webserver
 
 # Configuración general
 webserver_type: "apache"
@@ -9,8 +10,10 @@ wordpress_user: "www-data"
 wordpress_group: "www-data"
 wordpress_domain: "localhost"
 
+# PHP se detecta automáticamente por distribución
+# php_version: Se configura automáticamente en detect-php-version.yml
+
 # PHP configuración
-php_version: "8.2"
 php_memory_limit: "256M"
 php_max_execution_time: "300"
 php_upload_max_filesize: "64M"

@@ -1,10 +1,15 @@
 ---
 galaxy_info:
-  author: "Tu Nombre"
-  description: "Role para instalar y configurar WordPress"
-  company: "Mi Empresa"
-  license: "MIT"
-  min_ansible_version: "2.9"
+  role_name: webserver
+  namespace: tu_usuario  # Cambiar por tu usuario/namespace
+  author: Tu Nombre
+  description: >-
+    Ansible role para instalar y configurar un servidor web completo con WordPress.
+    Incluye Apache HTTP Server, PHP 8.2 con todas las extensiones necesarias,
+    y configuración automática de WordPress con MySQL.
+  company: Tu Empresa
+  license: MIT
+  min_ansible_version: "2.12"
   
   platforms:
     - name: Ubuntu
@@ -13,16 +18,28 @@ galaxy_info:
         - jammy
     - name: Debian
       versions:
-        - buster
         - bullseye
+        - bookworm
     - name: EL
       versions:
-        - 8
-        - 9
+        - "8"
+        - "9"
 
   galaxy_tags:
     - wordpress
     - web
     - php
+    - apache
+    - mysql
+    - webserver
+    - cms
+    - lamp
 
-dependencies: []
+dependencies:
+  - role: geerlingguy.mysql
+    version: ">=5.0.0"
+
+collections:
+  - community.mysql
+  - community.general
+  - ansible.posix

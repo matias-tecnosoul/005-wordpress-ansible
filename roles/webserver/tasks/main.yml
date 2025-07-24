@@ -1,6 +1,10 @@
 ---
 # Tareas principales del role webserver
 
+- name: "Detectar versión de PHP disponible"
+  include_tasks: detect-php-version.yml
+  tags: ['always']
+
 - name: "Incluir variables específicas por OS"
   include_vars: "{{ ansible_os_family | lower }}.yml"
   tags: ['always']

@@ -6,7 +6,7 @@ ansible_python_interpreter: auto_silent
 # Variables que necesitan TODOS los roles y hosts
 wordpress_domain: "wordpress.local"
 wordpress_admin_email: "admin@wordpress.local"
-php_version: "8.2"
+php_version: "8.1"
 webserver_type: "apache"
 
 # === MYSQL - CONFIGURACIÓN COMPLETA PARA geerlingguy.mysql ===
