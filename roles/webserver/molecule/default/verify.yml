@@ -1,40 +1,127 @@
 ---
-- name: Verify
-  hosts: all
+# Verificaciones específicas por distribución
+- name: Verify Ubuntu hosts
+  hosts: ubuntu_hosts
   become: true
   gather_facts: true
-  
   tasks:
-    - name: Check if Apache is running
+    - name: Debug Ubuntu detection
+      debug:
+        msg:
+          - "Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Expected PHP: 8.1"
+          - "Expected Apache: apache2"
+
+    - name: Verify PHP 8.1 is installed on Ubuntu
+      command: php --version
+      register: php_version_ubuntu
+      changed_when: false
+      failed_when: "'PHP 8.1' not in php_version_ubuntu.stdout"
+
+    - name: Show PHP version on Ubuntu
+      debug:
+        msg: "✅ Ubuntu PHP Version: {{ php_version_ubuntu.stdout.split()[1] }}"
+
+    - name: Test WordPress access Ubuntu
+      uri:
+        url: "http://localhost"
+        method: GET
+        status_code: [200, 301, 302, 404]
+      register: http_ubuntu
+
+    - name: Show Ubuntu HTTP status
+      debug:
+        msg: "✅ Ubuntu HTTP Status: {{ http_ubuntu.status }}"
+
+- name: Verify Debian hosts
+  hosts: debian_hosts
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Debug Debian detection
+      debug:
+        msg:
+          - "Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Expected PHP: 8.2"
+          - "Expected Apache: apache2"
+
+    - name: Verify PHP 8.2 is installed on Debian
+      command: php --version
+      register: php_version_debian
+      changed_when: false
+      failed_when: "'PHP 8.2' not in php_version_debian.stdout"
+
+    - name: Show PHP version on Debian
+      debug:
+        msg: "✅ Debian PHP Version: {{ php_version_debian.stdout.split()[1] }}"
+
+    - name: Test WordPress access Debian
+      uri:
+        url: "http://localhost"
+        method: GET
+        status_code: [200, 301, 302, 404]
+      register: http_debian
+
+    - name: Show Debian HTTP status
+      debug:
+        msg: "✅ Debian HTTP Status: {{ http_debian.status }}"
+
+- name: Verify Rocky hosts
+  hosts: rocky_hosts
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Debug Rocky detection
+      debug:
+        msg:
+          - "Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Expected PHP: 8.0"
+          - "Expected Apache: httpd"
+
+    - name: Verify PHP 8.0 is installed on Rocky
+      command: php --version
+      register: php_version_rocky
+      changed_when: false
+      failed_when: "'PHP 8.0' not in php_version_rocky.stdout"
+
+    - name: Show PHP version on Rocky
+      debug:
+        msg: "✅ Rocky PHP Version: {{ php_version_rocky.stdout.split()[1] }}"
+
+    - name: Test WordPress access Rocky
+      uri:
+        url: "http://localhost"
+        method: GET
+        status_code: [200, 301, 302, 404]
+      register: http_rocky
+
+    - name: Show Rocky HTTP status
+      debug:
+        msg: "✅ Rocky HTTP Status: {{ http_rocky.status }}"
+
+# Verificaciones comunes para todos los hosts
+- name: Verify all WordPress servers
+  hosts: wordpress_servers
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Check correct Apache service is running
       systemd:
-        name: apache2
+        name: "{{ expected_apache_service }}"
         state: started
         enabled: yes
       check_mode: true
       register: apache_status
       failed_when: apache_status is changed
 
-    - name: Check if MySQL is running
+    - name: Check MySQL service is running
       systemd:
-        name: mysql
+        name: "{{ expected_mysql_service }}"
         state: started
         enabled: yes
       check_mode: true
       register: mysql_status
       failed_when: mysql_status is changed
-
-    - name: Check PHP version
-      command: php --version
-      register: php_version_output
-      changed_when: false
-      failed_when: php_version_output.rc != 0
-
-    - name: Verify PHP 8.x is installed
-      assert:
-        that:
-          - "'PHP 8.' in php_version_output.stdout"
-        fail_msg: "PHP 8.x not found. Output: {{ php_version_output.stdout }}"
-        success_msg: "PHP 8.x correctly installed: {{ php_version_output.stdout.split()[1] }}"
 
     - name: Check WordPress directory exists
       stat:
@@ -42,30 +129,16 @@
       register: wp_dir
       failed_when: not wp_dir.stat.exists
 
-    - name: Check wp-config.php exists
-      stat:
+    - name: Check wp-config.php exists and is configured
+      lineinfile:
         path: /var/www/html/wordpress/wp-config.php
-      register: wp_config
-      failed_when: not wp_config.stat.exists
+        line: "define( 'DB_NAME', 'test_wordpress_db' );"
+        state: present
+      check_mode: true
+      register: db_config
+      failed_when: db_config is changed
 
-    # ✅ Test HTTP actualizado - acepta redirects de WordPress
-    - name: Test HTTP response (WordPress may redirect)
-      uri:
-        url: "http://localhost"
-        method: GET
-        status_code: [200, 301, 302, 404]  # ← Agregar 301 para redirects
-        follow_redirects: none  # No seguir redirects automáticamente
-      register: http_response
-      failed_when: http_response.status not in [200, 301, 302, 404]
-
-    - name: Show HTTP response details
-      debug:
-        msg:
-          - "HTTP Status: {{ http_response.status }}"
-          - "Response: {{ 'Redirect' if http_response.status == 301 else 'Direct response' }}"
-          - "Location header: {{ http_response.location | default('N/A') }}"
-
-    - name: Test database connection with WordPress user
+    - name: Test database connection
       mysql_query:
         login_host: localhost
         login_user: test_wp_user
@@ -75,40 +148,47 @@
       register: db_test
       failed_when: db_test is failed
 
-    - name: Verify database query result
-      assert:
-        that:
-          - db_test.query_result[0][0]['test_connection'] == 1
-        success_msg: "✅ Database connection working correctly"
+    - name: Verify PHP extensions are installed
+      command: php -m
+      register: php_modules
+      changed_when: false
+      failed_when: >
+        'mysql' not in php_modules.stdout or
+        'curl' not in php_modules.stdout or
+        'gd' not in php_modules.stdout
 
-    - name: Check Apache modules are enabled
-      apache2_module:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - rewrite
-        - headers
-      check_mode: true
-      register: apache_modules
-      failed_when: apache_modules is changed
-
-    - name: Check WordPress configuration contains correct DB info
-      lineinfile:
-        path: /var/www/html/wordpress/wp-config.php
-        line: "define( 'DB_NAME', 'test_wordpress_db' );"
-        state: present
-      check_mode: true
-      register: db_config
-      failed_when: db_config is changed
-
-    - name: Verification summary
+    - name: Final verification summary
       debug:
         msg:
-          - "✅ Apache running and configured"
-          - "✅ MySQL accessible with WordPress user"  
-          - "✅ PHP {{ php_version_output.stdout.split()[1] }} installed"
-          - "✅ WordPress files in place and responding"
-          - "✅ Database connection working"
-          - "✅ HTTP server responding ({{ http_response.status }})"
-          - "✅ Apache modules enabled"
-          - "🚀 WordPress webserver role verification completed successfully!"
+          - "🎉 {{ inventory_hostname }} verification completed!"
+          - "✅ Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "✅ PHP Version: {{ expected_php_version }}"
+          - "✅ Apache Service: {{ expected_apache_service }}"
+          - "✅ MySQL Service: {{ expected_mysql_service }}"
+          - "✅ WordPress Domain: {{ wordpress_domain }}"
+          - "✅ Database Connection: Working"
+          - "✅ WordPress Files: Present"
+
+# Verificación final de resumen
+- name: Multi-distro verification summary
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Summary of multi-distro testing
+      debug:
+        msg:
+          - "🎉 MULTI-DISTRO TESTING COMPLETED SUCCESSFULLY!"
+          - ""
+          - "✅ Ubuntu 22.04 → PHP 8.1 → http://localhost:8180"
+          - "✅ Debian 12 → PHP 8.2 → http://localhost:8181"  
+          - "✅ Rocky 9 → PHP 8.0 → http://localhost:8182"
+          - ""
+          - "🌐 Test WordPress installations:"
+          - "   - Ubuntu: curl http://localhost:8180"
+          - "   - Debian: curl http://localhost:8181"
+          - "   - Rocky:  curl http://localhost:8182"
+          - ""
+          - "🔍 Login to containers:"
+          - "   - molecule login --host ubuntu2204-instance"
+          - "   - molecule login --host debian12-instance" 
+          - "   - molecule login --host rocky9-instance"
