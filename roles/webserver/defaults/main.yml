@@ -1,7 +1,6 @@
 ---
 # roles/webserver/defaults/main.yml
 # Variables por defecto del role webserver
-# Variables por defecto del role webserver
 
 # Configuración general
 webserver_type: "apache"
