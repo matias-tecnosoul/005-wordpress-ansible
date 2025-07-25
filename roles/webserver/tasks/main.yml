@@ -2,35 +2,35 @@
 # Tareas principales del role webserver
 
 - name: "Detectar versión de PHP disponible"
-  include_tasks: detect-php-version.yml
-  tags: ['always']
+  ansible.builtin.include_tasks: detect-php-version.yml
+  tags: ["always"]
 
 - name: "Incluir variables específicas por OS"
-  include_vars: "{{ ansible_os_family | lower }}.yml"
-  tags: ['always']
+  ansible.builtin.include_vars: "{{ ansible_os_family | lower }}.yml"
+  tags: ["always"]
 
 - name: "Instalar paquetes web server y PHP (Debian/Ubuntu)"
-  include_tasks: debian.yml
+  ansible.builtin.include_tasks: debian.yml
   when: ansible_os_family == "Debian"
-  tags: ['packages', 'php']
+  tags: ["packages", "php"]
 
 - name: "Instalar paquetes web server y PHP (RedHat/CentOS)"
-  include_tasks: redhat.yml
+  ansible.builtin.include_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
-  tags: ['packages', 'php']
+  tags: ["packages", "php"]
 
 - name: "Configurar PHP"
-  include_tasks: php.yml
-  tags: ['php', 'config']
+  ansible.builtin.include_tasks: php.yml
+  tags: ["php", "config"]
 
 - name: "Instalar y configurar WordPress"
-  include_tasks: wordpress.yml
-  tags: ['wordpress']
+  ansible.builtin.include_tasks: wordpress.yml
+  tags: ["wordpress"]
 
 - name: "Asegurar que servicios estén iniciados"
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: true
   loop: "{{ webserver_services }}"
-  tags: ['services']
+  tags: ["services"]

@@ -2,19 +2,19 @@
 # Tareas específicas para Debian/Ubuntu
 
 - name: "Actualizar cache de apt"
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     cache_valid_time: 3600
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: "Instalar paquetes necesarios para WordPress"
-  apt:
+  ansible.builtin.apt:
     name: "{{ debian_packages }}"
     state: present
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: "Habilitar módulos de Apache"
-  apache2_module:
+  community.general.apache2_module:
     name: "{{ item }}"
     state: present
   loop:
@@ -22,13 +22,13 @@
     - ssl
     - headers
   notify: restart apache2
-  tags: ['apache', 'modules']
+  tags: ["apache", "modules"]
 
 - name: "Crear directorio de WordPress"
-  file:
+  ansible.builtin.file:
     path: "{{ wordpress_install_dir }}"
     state: directory
     owner: "{{ wordpress_user }}"
     group: "{{ wordpress_group }}"
-    mode: '0755'
-  tags: ['wordpress', 'directories']
+    mode: "0755"
+  tags: ["wordpress", "directories"]

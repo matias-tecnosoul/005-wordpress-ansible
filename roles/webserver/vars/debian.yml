@@ -1,6 +1,6 @@
 ---
 # Variables específicas para Debian/Ubuntu
-#roles/webserver/vars/debian.yml
+# roles/webserver/vars/debian.yml
 
 webserver_services:
   - apache2
