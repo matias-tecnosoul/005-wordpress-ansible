@@ -2,13 +2,14 @@
 dependency:
   name: galaxy
   options:
-    requirements-file: ../../../../requirements.yml
+    requirements-file: requirements.yml
 
 driver:
   name: docker
 
 platforms:
-  - name: instance-ubuntu
+  # Ubuntu 22.04 LTS
+  - name: ubuntu2204-instance
     image: geerlingguy/docker-ubuntu2204-ansible:latest
     command: /lib/systemd/systemd
     privileged: true
@@ -16,7 +17,38 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     published_ports:
-      - "8180:80"
+      - "8180:80"   # WordPress Ubuntu
+    groups:
+      - ubuntu_hosts
+      - wordpress_servers
+
+  # Debian 12 Bookworm  
+  - name: debian12-instance
+    image: geerlingguy/docker-debian12-ansible:latest
+    command: /lib/systemd/systemd
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    published_ports:
+      - "8181:80"   # WordPress Debian
+    groups:
+      - debian_hosts
+      - wordpress_servers
+
+  # Rocky Linux 9
+  - name: rocky9-instance
+    image: geerlingguy/docker-rockylinux9-ansible:latest
+    command: /lib/systemd/systemd
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    published_ports:
+      - "8182:80"   # WordPress Rocky
+    groups:
+      - rocky_hosts
+      - wordpress_servers
 
 provisioner:
   name: ansible
@@ -26,8 +58,9 @@ provisioner:
       stdout_callback: yaml
       host_key_checking: false
   inventory:
-    host_vars:
-      instance-ubuntu:
+    group_vars:
+      all:
+        # Variables comunes para todas las distribuciones
         mysql_root_password: "test_root_password"
         mysql_root_password_update: true
         mysql_user_password_update: true
@@ -48,19 +81,49 @@ provisioner:
             priv: "test_wordpress_db.*:ALL"
             state: present
             update_password: always
-            
-        wordpress_domain: "test.local"
+        
+        # Variables WordPress comunes
         wordpress_db_host: "localhost"
         wordpress_db_name: "test_wordpress_db"
         wordpress_db_user: "test_wp_user"
         wordpress_db_password: "test_wp_password"
-        php_version: "8.1"
         webserver_type: "apache"
+        wordpress_install_dir: "/var/www/html/wordpress"
+        wordpress_table_prefix: "test_wp_"
+        wordpress_debug: true
+        
+        # WordPress security keys (para testing)
+        wordpress_auth_key: "test-auth-key-12345"
+        wordpress_secure_auth_key: "test-secure-auth-key-12345"
+        wordpress_logged_in_key: "test-logged-in-key-12345"
+        wordpress_nonce_key: "test-nonce-key-12345"
+        wordpress_auth_salt: "test-auth-salt-12345"
+        wordpress_secure_auth_salt: "test-secure-auth-salt-12345"
+        wordpress_logged_in_salt: "test-logged-in-salt-12345"
+        wordpress_nonce_salt: "test-nonce-salt-12345"
+    
+    host_vars:
+      ubuntu2204-instance:
+        wordpress_domain: "ubuntu-wordpress.test"
+        expected_php_version: "8.1"
+        expected_apache_service: "apache2"
+        expected_mysql_service: "mysql"
+      
+      debian12-instance:
+        wordpress_domain: "debian-wordpress.test"
+        expected_php_version: "8.2"
+        expected_apache_service: "apache2"
+        expected_mysql_service: "mysql"
+      
+      rocky9-instance:
+        wordpress_domain: "rocky-wordpress.test"
+        expected_php_version: "8.0"
+        expected_apache_service: "httpd"
+        expected_mysql_service: "mysqld"
 
 verifier:
   name: ansible
 
-# Omitir idempotencia del test
 scenario:
   test_sequence:
     - dependency

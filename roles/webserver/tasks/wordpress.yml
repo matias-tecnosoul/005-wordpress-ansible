@@ -2,94 +2,93 @@
 # Instalación y configuración de WordPress
 
 - name: "Verificar si WordPress ya está instalado"
-  stat:
+  ansible.builtin.stat:
     path: "{{ wordpress_install_dir }}/wp-config.php"
   register: wordpress_installed
-  tags: ['wordpress']
+  tags: ["wordpress"]
 
 - name: "Descargar WordPress"
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ wordpress_download_url }}"
     dest: "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
-    mode: '0644'
+    mode: "0644"
   when: not wordpress_installed.stat.exists
-  tags: ['wordpress', 'download']
+  tags: ["wordpress", "download"]
 
 - name: "Extraer WordPress"
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
     dest: "{{ wordpress_temp_dir }}"
-    remote_src: yes
+    remote_src: true
     creates: "{{ wordpress_temp_dir }}/wordpress"
   when: not wordpress_installed.stat.exists
-  tags: ['wordpress', 'extract']
+  tags: ["wordpress", "extract"]
 
 - name: "Copiar archivos de WordPress"
-  copy:
+  ansible.builtin.copy:
     src: "{{ wordpress_temp_dir }}/wordpress/"
     dest: "{{ wordpress_install_dir }}/"
-    remote_src: yes
+    remote_src: true
     owner: "{{ wordpress_user }}"
     group: "{{ wordpress_group }}"
-    mode: '0755'
+    mode: "0755"
   when: not wordpress_installed.stat.exists
-  tags: ['wordpress', 'copy']
+  tags: ["wordpress", "copy"]
 
 - name: "Establecer permisos especiales para wp-content"
-  file:
+  ansible.builtin.file:
     path: "{{ wordpress_install_dir }}/wp-content"
-    mode: '0775'
-    recurse: yes
-  tags: ['wordpress', 'permissions']
+    mode: "0775"
+    recurse: true
+  tags: ["wordpress", "permissions"]
 
 - name: "Crear wp-config.php desde template"
-  template:
+  ansible.builtin.template:
     src: wp-config.php.j2
     dest: "{{ wordpress_install_dir }}/wp-config.php"
     owner: "{{ wordpress_user }}"
     group: "{{ wordpress_group }}"
-    mode: '0644'
-    backup: yes
-  tags: ['wordpress', 'config']
+    mode: "0644"
+    backup: true
+  tags: ["wordpress", "config"]
 
 - name: "Configurar Apache para WordPress (Debian/Ubuntu)"
-  block:
-    - name: "Crear virtualhost de Apache"
-      template:
-        src: apache-wordpress.conf.j2
-        dest: "/etc/apache2/sites-available/wordpress.conf"
-        backup: yes
-      
-    - name: "Habilitar sitio de WordPress"
-      command: a2ensite wordpress.conf
-      notify: restart apache2
-      
-    - name: "Deshabilitar sitio por defecto"
-      command: a2dissite 000-default.conf
-      notify: restart apache2
-      ignore_errors: yes
-
-  when: 
+  when:
     - webserver_type == "apache"
     - ansible_os_family == "Debian"
-  tags: ['apache', 'vhost']
+  tags: ["apache", "vhost"]
+  block:
+    - name: "Crear virtualhost de Apache"
+      ansible.builtin.template:
+        src: apache-wordpress.conf.j2
+        dest: "/etc/apache2/sites-available/wordpress.conf"
+        backup: true
+
+    - name: "Habilitar sitio de WordPress"
+      ansible.builtin.command: a2ensite wordpress.conf
+      notify: restart apache2
+
+    - name: "Deshabilitar sitio por defecto"
+      ansible.builtin.command: a2dissite 000-default.conf
+      notify: restart apache2
+      failed_when: false
 
 - name: "Configurar Apache para WordPress (RedHat/Rocky)"
-  template:
+  ansible.builtin.template:
     src: apache-wordpress.conf.j2
     dest: "/etc/httpd/conf.d/wordpress.conf"
-    backup: yes
-  when: 
+    backup: true
+  when:
     - webserver_type == "apache"
     - ansible_os_family == "RedHat"
   notify: restart httpd
-  tags: ['apache', 'vhost']
+  tags: ["apache", "vhost"]
 
 - name: "Limpiar archivos temporales"
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
     - "{{ wordpress_temp_dir }}/wordpress-{{ wordpress_version }}.tar.gz"
     - "{{ wordpress_temp_dir }}/wordpress"
-  tags: ['wordpress', 'cleanup']
+  tags: ["wordpress", "cleanup"]

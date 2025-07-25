@@ -1,9 +1,8 @@
-
 ---
 # Detectar versión de PHP disponible según la distribución
 
 - name: Set PHP version based on distribution
-  set_fact:
+  ansible.builtin.set_fact:
     php_version_available: >-
       {%- if ansible_distribution == "Ubuntu" and ansible_distribution_version is version('22.04', '==') -%}
         8.1
@@ -16,7 +15,7 @@
       {%- endif -%}
 
 - name: Debug PHP version detection
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Distribution: {{ ansible_distribution }} {{ ansible_distribution_version }}"
       - "Requested PHP version: {{ php_version | default('not set') }}"
@@ -24,5 +23,5 @@
       - "Will install: PHP {{ php_version_available }}"
 
 - name: Update PHP version variable
-  set_fact:
+  ansible.builtin.set_fact:
     php_version: "{{ php_version_available }}"

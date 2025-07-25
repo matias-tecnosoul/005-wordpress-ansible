@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: webserver
-  namespace: tu_usuario  # Cambiar por tu usuario/namespace
+  namespace: tu_usuario # Cambiar por tu usuario/namespace
   author: Tu Nombre
   description: >-
     Ansible role para instalar y configurar un servidor web completo con WordPress.
@@ -10,7 +10,7 @@ galaxy_info:
   company: Tu Empresa
   license: MIT
   min_ansible_version: "2.12"
-  
+
   platforms:
     - name: Ubuntu
       versions:
