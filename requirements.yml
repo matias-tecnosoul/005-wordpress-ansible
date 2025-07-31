@@ -2,7 +2,7 @@
 roles:
   - name: geerlingguy.mysql
     version: "5.0.2"
-  - name: matias_tecnosoul.wordpress_webserver
+  - name: matias-tecnosoul.wordpress_webserver
 
 collections:
   - name: community.mysql

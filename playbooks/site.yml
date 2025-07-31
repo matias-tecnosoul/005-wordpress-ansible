@@ -19,14 +19,14 @@
         msg:
           - "🎭 Usando roles de Ansible Galaxy:"
           - "  - geerlingguy.mysql (base de datos)"
-          - "  - matias_tecnosoul.wordpress_webserver (webserver)"
+          - "  - matias-tecnosoul.wordpress_webserver (webserver)"
           - "📦 Roles instalados automáticamente desde Galaxy"
 
   roles:
     - role: geerlingguy.mysql
       tags: ['mysql', 'database']
         
-    - role: matias_tecnosoul.wordpress_webserver
+    - role: matias-tecnosoul.wordpress_webserver
       tags: ['wordpress', 'webserver']
 
   post_tasks:

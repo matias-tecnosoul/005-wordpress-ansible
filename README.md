@@ -21,7 +21,7 @@ Objetivos:
 
 ---
 - ✅ **Database**: `geerlingguy.mysql` (Galaxy)
-- ✅ **Webserver**: `matias_tecnosoul.wordpress_webserver` (Galaxy)
+- ✅ **Webserver**: `matias-tecnosoul.wordpress_webserver` (Galaxy)
 - ✅ **No roles locales** - todo desde Galaxy
 - ✅ **Database-agnostic design** - configurable
 
@@ -35,7 +35,7 @@ git clone https://github.com/matias-tecnosoul/005-wordpress-ansible.git
 
 ### 2. Instalar las dependencias
 
-#### 📦 Roles (`geerlingguy.mysql` y `matias_tecnosoul.wordpress_webserver`)
+#### 📦 Roles (`geerlingguy.mysql` y `matias-tecnosoul.wordpress_webserver`)
 
 ```bash
 ansible-galaxy install -r requirements.yml -p roles/

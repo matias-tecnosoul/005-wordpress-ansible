@@ -25,3 +25,4 @@ __pycache__/
 # Testing temporales
 *.tmp
 *.log
+roles/matias-tecnosoul.wordpress_webserver/
