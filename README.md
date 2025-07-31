@@ -73,15 +73,16 @@ wordpress_db_password: wp_pass
 ejecutar cada parte por separado usando etiquetas (`--tags`):
 
 ```bash
-ansible-playbook playbooks/site.yml --limit ubuntu --tags "mysql"
-ansible-playbook playbooks/site.yml --limit ubuntu --tags "webserver"
+ansible-playbook -i inventory/hosts.yml playbooks/site.yml --limit ubuntu --tags "mysql"
+ansible-playbook -i inventory/hosts.yml playbooks/site.yml --limit ubuntu --tags "webserver"
 ```
 
 ejecutar todo junto:
 
 ```bash
-ansible-playbook playbooks/site.yml --limit ubuntu
+ansible-playbook -i inventory/hosts.yml playbooks/site.yml --limit ubuntu
 ```
+
 
 > Revisar `inventory/hosts.yml` para q apunte a una VM o host válido para testing.
 
