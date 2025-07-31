@@ -1,35 +1,39 @@
 ---
 #playbooks/site.yml
-- name: "Instalar WordPress con MySQL"
+- name: "Instalar WordPress con MySQL usando Galaxy roles"
   hosts: wordpress
   become: yes
   gather_facts: yes
 
   vars_files:
-    - ../group_vars/all.yml  # relativo al playbook
+    - ../group_vars/all.yml
   
   pre_tasks:
     - name: "Actualizar cache de paquetes"
       package:
         update_cache: yes
       changed_when: false
-    - name: "Mostrar variables mysql_databases"
+    
+    - name: "Información sobre roles Galaxy"
       debug:
-        var: mysql_databases
+        msg:
+          - "🎭 Usando roles de Ansible Galaxy:"
+          - "  - geerlingguy.mysql (base de datos)"
+          - "  - matias_tecnosoul.wordpress_webserver (webserver)"
+          - "📦 Roles instalados automáticamente desde Galaxy"
 
   roles:
     - role: geerlingguy.mysql
       tags: ['mysql', 'database']
         
-    - role: webserver
+    - role: matias_tecnosoul.wordpress_webserver
       tags: ['wordpress', 'webserver']
 
   post_tasks:
     - name: "Información de acceso a WordPress"
       debug:
         msg:
-          - "WordPress instalado exitosamente!"
-          - "URL: http://{{ wordpress_domain }} o http://{{ ansible_host }}"
-          - "Completa la instalación desde el navegador"
-          - "Base de datos ya configurada automáticamente"
-      tags: ['info']
+          - "🎉 WordPress instalado exitosamente usando Galaxy roles!"
+          - "🌐 URL: http://{{ wordpress_domain }} o http://{{ ansible_host }}"
+          - "📚 Database-agnostic design - configurable con cualquier DB"
+          - "🔧 Multi-distro support: Ubuntu, Debian, Rocky Linux"

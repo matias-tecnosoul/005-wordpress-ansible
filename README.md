@@ -13,18 +13,17 @@ Objetivos:
 ## 📁 Estructura del Proyecto
 
 005-wordpress-ansible/
-├── ansible.cfg
+├── playbooks/site.yml              
+├── requirements.yml                 
+├── group_vars/
 ├── inventory/
-│ └── hosts.yml
-├── playbooks/
-│ ├── site.yml # Playbook principal
-│ └── wordpress.yml # Playbook específico para WordPress
-├── roles/
-│ └── webserver/ # Rol personalizado para servidor web
-├── requirements.yml # Roles y colecciones a instalar
-└── group_vars/
-└── all.yml # Variables comunes (credenciales, etc.)
+└── README.md                       
+
 ---
+- ✅ **Database**: `geerlingguy.mysql` (Galaxy)
+- ✅ **Webserver**: `matias_tecnosoul.wordpress_webserver` (Galaxy)
+- ✅ **No roles locales** - todo desde Galaxy
+- ✅ **Database-agnostic design** - configurable
 
 ## 🚀 Cómo poner en marcha el proyecto
 
@@ -32,12 +31,11 @@ Objetivos:
 
 ```bash
 git clone https://github.com/matias-tecnosoul/005-wordpress-ansible.git
-cd 005-wordpress-ansible
 ````
 
 ### 2. Instalar las dependencias
 
-#### 📦 Roles (como `geerlingguy.mysql`)
+#### 📦 Roles (`geerlingguy.mysql` y `matias_tecnosoul.wordpress_webserver`)
 
 ```bash
 ansible-galaxy install -r requirements.yml -p roles/
