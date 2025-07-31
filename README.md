@@ -33,6 +33,30 @@ Objetivos:
 git clone https://github.com/matias-tecnosoul/005-wordpress-ansible.git
 ````
 
+El role wordpress_webserver es database-agnostic, puedes usar:
+
+# Con MySQL
+roles:
+  - geerlingguy.mysql
+  - matias_tecnosoul.wordpress_webserver
+
+# Con MariaDB  
+roles:
+  - geerlingguy.mariadb
+  - matias_tecnosoul.wordpress_webserver
+
+# Con PostgreSQL
+roles:
+  - geerlingguy.postgresql
+  - matias_tecnosoul.wordpress_webserver
+
+# Con database externa
+vars:
+  wordpress_db_host: "external-db.example.com"
+roles:
+  - matias_tecnosoul.wordpress_webserver
+
+Para este caso usamos geerlingguy.mysql
 ### 2. Instalar las dependencias
 
 #### 📦 Roles (`geerlingguy.mysql` y `matias-tecnosoul.wordpress_webserver`)
